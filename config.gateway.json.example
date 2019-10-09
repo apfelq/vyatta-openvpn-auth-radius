@@ -1,0 +1,61 @@
+{
+	"interfaces": {
+		"openvpn": {
+			"vtun0": {
+				"encryption": "aes256",
+				"hash": "sha512",
+				"mode": "server",
+				"openvpn-option": [
+					"--port 1194",
+					"--persist-key",
+					"--persist-tun",
+					"--user nobody",
+					"--group nogroup",
+					"--tls-auth /config/user-data/openvpn/ta.key 0",
+					"--plugin /usr/lib/openvpn/radiusplugin.so /config/user-data/openvpn/radiusplugin.cnf",
+					"--ifconfig-pool-persist /config/user-data/openvpn/ccd/.ip.cfg",
+					"--client-config-dir /config/user-data/openvpn/ccd",
+					"--client-to-client",
+					"--username-as-common-name",
+					"--client-cert-not-required",
+					"--push route 192.168.1.0 255.255.255.0"
+				],
+				"server": {
+					"subnet": "10.8.0.0/24"
+				},
+				"tls": {
+					"ca-cert-file": "/config/user-data/easy-rsa/keys/ca.crt",
+					"cert-file": "/config/user-data/easy-rsa/keys/openvpn-server.crt",
+					"dh-file": "/config/user-data/easy-rsa/keys/dh2048.pem",
+					"key-file": "/config/user-data/easy-rsa/keys/openvpn-server.key"
+				}
+			}
+		}
+	},
+	"firewall": {
+		"name": {
+			"WAN_LOCAL": {
+				"rule": {
+					"50": {
+						"action": "accept",
+						"description": "OpenVPN",
+						"destination": {
+							"port": "1194"
+						},
+						"log": "enable",
+						"protocol": "udp"
+					}
+				}
+			}
+		},
+		"group": {
+			"network-group": {
+				"remote_user_vpn_network": {
+					"network": [
+						"10.8.0.0/24"
+					]
+				}
+			}
+		}
+	}
+}
